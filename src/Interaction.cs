@@ -303,7 +303,7 @@ public partial class MainClass : MelonMod
         System.Action action = () => SpawnPicture();
         GameObject spawnButton = NewGearMarketButton("spawnButton", "Spawn picture", action);
         spawnButton.transform.position = new Vector3(-13.19f, -4.68f, 5.42f);
-        spawnButton.transform.rotation = Quaternion.Euler(new Vector3(-90, 35, 0));
+        spawnButton.transform.rotation = Quaternion.Euler(new Vector3(-90, 30, 0));
 
         initializeMailTubeObjects();
     }
