@@ -418,6 +418,13 @@ public partial class MainClass : MelonMod
         File.Copy(src, dst, overwrite: true);
         return fileName;
     }
+
+    /**
+    * <summary>
+    * Creates a printed photo from the most recent photo taken with Rock Cam.
+    * If printed a photo right before that, it will print the next most recent photo.
+    * </summary>
+    */
     private static void PrintPhoto()
     {
         if (rockCamPicture is not null)

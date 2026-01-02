@@ -519,6 +519,13 @@ public partial class MainClass : MelonMod
         }
     }
 
+    /**
+    * <summary>
+    * Loads the gif frames one gif after another, yielding between each frame to avoid freezing the game.
+    * Once a gif is fully loaded, a new coroutine is started to play it.
+    * This function finishes when all gifs are loaded.
+    * </summary>
+    */
     private static IEnumerator<WaitForSeconds> PlayAllGifs()
     {
         if (gifs is null || gifs.Count == 0)
@@ -605,6 +612,12 @@ public partial class MainClass : MelonMod
         }
         Log($"Stopping coroutine to play gif: {path}");
     }
+
+    /**
+    * <summary>
+    * Reads the next frame from the GIF stream, and returns its data. If none are left, returns null.
+    * </summary>
+    */
     private static FrameData ReadGifFrame(GifStream gifStream)
     {
         switch (gifStream.CurrentToken)

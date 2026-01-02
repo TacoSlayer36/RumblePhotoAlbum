@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using HarmonyLib;
 using Il2CppRUMBLE.Players;
+using System.Collections.Generic;
 
 namespace RumblePhotoAlbum;
 
@@ -13,7 +14,7 @@ public partial class MainClass : MelonMod
     private static bool[] grip = { false, false }; // whether the grip is pressed on each controller
     private static bool[] holding = { false, false }; // whether the picture is being held by each hand
     private static GameObject[] hand = { null, null }; // left and right hand GameObjects
-    private static PictureData currentlyModified = null; // a single picture can be modified at once
+    private static PictureData[] currentlyModified = { null, null }; // two pictures can be modified at once
     private static GameObject resizingHandle = null; // parent to the picture when resizing
 
     private const float hold_distance = 0.05f; // Distance to consider holding a picture
@@ -32,7 +33,8 @@ public partial class MainClass : MelonMod
         holding[1] = false;
         hand[0] = playerTr.GetChild(1).gameObject;
         hand[1] = playerTr.GetChild(2).gameObject;
-        currentlyModified = null;
+        currentlyModified[0] = null;
+        currentlyModified[1] = null;
         resizingHandle = new GameObject("ResizingHandle");
         resizingHandle.transform.SetParent(playerTr, true);
     }
@@ -45,17 +47,36 @@ public partial class MainClass : MelonMod
     */
     private static void ProcessGrabbing()
     {
-        bool grabbingChanged = ProcessGrabbing(0) || ProcessGrabbing(1);
+        bool grabbingChanged = ProcessGrabbingPerHand(0) || ProcessGrabbingPerHand(1);
         if (grabbingChanged)
         {
-            if (currentlyModified is not null) // if a picture is being held
+            bool doubleHolding = (currentlyModified[0] == currentlyModified[1]);
+            for (int i = 0; i < 2; i++)
             {
-                UpdatePictureParent(currentlyModified);
-                if (!holding[0] && !holding[1])
+                if (currentlyModified[i] is not null)
                 {
-                    GameObject actionButtons  = currentlyModified.obj.transform.GetChild(0).GetChild(0).gameObject;
-                    actionButtons.SetActive(false);
-                    currentlyModified = null; // Reset currently modified picture if not holding
+                    var pictureData = currentlyModified[i];
+                    UpdatePictureParent(pictureData);
+                    GameObject actionButtons = pictureData.obj.transform.GetChild(0).GetChild(0).gameObject;
+                    if (!holding[i])
+                    {
+                        if (!doubleHolding || !holding[1 - i]) // not holsing with the other hand either
+                        {
+                            actionButtons.SetActive(false);
+                            // Reset currently modified picture:
+                            if (doubleHolding) currentlyModified[1 - i] = null;
+                        }
+                        currentlyModified[i] = null;
+                    }
+                    else if (!doubleHolding && holding[1 - i])
+                    {
+                        // removing action buttons when holding two different pictures
+                        actionButtons.SetActive(false);
+                    }
+                    else
+                    {
+                        actionButtons.SetActive(true);
+                    }
                 }
             }
         }
@@ -67,7 +88,7 @@ public partial class MainClass : MelonMod
     * and update the holding status of this hand accordingly.
     * </summary>
     */
-    private static bool ProcessGrabbing(int index)
+    private static bool ProcessGrabbingPerHand(int index)
     {
         bool holdingChanged = CheckIfGripChanged(index);
         if (holdingChanged) // if the grip status changed
@@ -133,18 +154,25 @@ public partial class MainClass : MelonMod
             return;
         }
 
-        // if there is already a picture we're holding, ignore all other pictures
-        if (currentlyModified is not null)
+        bool doubleHolding = false;
+        // if there is already a picture we're holding, prioritize it
+        if (currentlyModified[1 - index] is not null)
         {
-            float dst = DistanceToPictureSurface(hand[index], currentlyModified);
+            float dst = DistanceToPictureSurface(hand[index], currentlyModified[1 - index]);
             holding[index] = (dst < hold_distance); // less than 5cm away
-        }
-        else // if not, find the closest picture within the hold distance
-        {
-
-            float dst_min = hold_distance;
-            foreach (PictureData pictureData in PicturesList)
+            if (dst < hold_distance) // less than 5cm away
             {
+                currentlyModified[index] = currentlyModified[1 - index];
+                doubleHolding = true;
+            }
+        }
+        if (!doubleHolding) // if not double-holding, find the closest picture within the hold distance
+        {
+            float dst_min = hold_distance;
+            int i_min = -1;
+            for (int i = 0; i < PicturesList.Count; i++)
+            {
+                var pictureData = PicturesList[i];
                 if (pictureData.obj is null)
                 {
                     LogWarn($"Framed picture {pictureData.path} has no GameObject associated with it.");
@@ -155,23 +183,30 @@ public partial class MainClass : MelonMod
                 {
                     holding[index] = true;
                     dst_min = dst;
-                    currentlyModified = pictureData; // Update currently modified picture
+                    i_min = i;
+                }
+            }
 
-                    if (buttonsVisibility)
-                    {
-                        GameObject actionButtons = currentlyModified.obj.transform.GetChild(0).GetChild(0).gameObject;
-                        actionButtons.SetActive(true);
-                    }
-                    if (pictureData==mailTubePicture)
-                    {
-                        mailTubePicture = null;
-                        albumJson.Add(pictureData.jsonConfig);
-                    }
-                    if (pictureData == rockCamPicture)
-                    {
-                        rockCamPicture = null;
-                        albumJson.Add(pictureData.jsonConfig);
-                    }
+            if (i_min != -1)
+            {
+                var pictureData = PicturesList[i_min];
+                // Update currently modified picture
+                currentlyModified[index] = pictureData; 
+
+                if (buttonsVisibility)
+                {
+                    GameObject actionButtons = pictureData.obj.transform.GetChild(0).GetChild(0).gameObject;
+                    actionButtons.SetActive(true);
+                }
+                if (pictureData == mailTubePicture)
+                {
+                    mailTubePicture = null;
+                    albumJson.Add(pictureData.jsonConfig);
+                }
+                if (pictureData == rockCamPicture)
+                {
+                    rockCamPicture = null;
+                    albumJson.Add(pictureData.jsonConfig);
                 }
             }
         }
@@ -219,9 +254,9 @@ public partial class MainClass : MelonMod
     */
     private static void UpdatePictureParent(PictureData pictureData)
     {
-        if (holding[0])
+        if (holding[0] && currentlyModified[0]==pictureData)
         {
-            if (holding[1]) // holding with two hands
+            if (holding[1] && currentlyModified[1] == pictureData) // holding with two hands
             {
                 UpdateResizingHandle();
                 pictureData.obj.transform.SetParent(resizingHandle.transform, true);
@@ -231,13 +266,13 @@ public partial class MainClass : MelonMod
                 pictureData.obj.transform.SetParent(hand[0].transform, true);
             }
         }
-        else if (holding[1]) // holding in right hand
+        else if (holding[1] && currentlyModified[1] == pictureData) // holding in right hand
         {
             pictureData.obj.transform.SetParent(hand[1].transform, true);
         }
         else
         {
-            // If not holding, return to default parent
+            // If not holding this picture, return to default parent
             pictureData.obj.transform.SetParent(photoAlbum.transform, true);
             UpdatePictureConfig(pictureData);
         }
@@ -251,11 +286,12 @@ public partial class MainClass : MelonMod
     */
     private static void UpdateResizingIfNeeded()
     {
-        if (holding[0] && holding[1]) // holding with two hands
+        if ((currentlyModified[0] is not null) && // holding something is left hand
+            (currentlyModified[0] == currentlyModified[1])) // holding it with two hands
         {
             // update the scale and position of the handle in between the two hands
             UpdateResizingHandle();
-            UpdatePictureSize(currentlyModified);
+            UpdatePictureSize(currentlyModified[0]);
         }
     }
 
@@ -288,8 +324,8 @@ public partial class MainClass : MelonMod
 
         // set proportional scale
         float distance = Vector3.Distance(left.localPosition, right.localPosition);
-        float scale = currentlyModified.obj.transform.localScale.x * distance;
-        Transform frame = currentlyModified.obj.transform.GetChild(0);
+        float scale = currentlyModified[0].obj.transform.localScale.x * distance;
+        Transform frame = currentlyModified[0].obj.transform.GetChild(0);
         float pictureSize = Math.Max(frame.localScale.x, frame.localScale.y);
         float limitation = Math.Min(pictureSize, maxPictureSize / scale)/ pictureSize;
 
