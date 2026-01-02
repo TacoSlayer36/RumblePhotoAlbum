@@ -56,6 +56,7 @@ public partial class MainClass : MelonMod
     private static IEnumerator<WaitForSeconds> LoadAlbum(string sceneName)
     {
         Log($"Reading from disk");
+        gifsLoading = false;
         PicturesList = new List<PictureData>();
         JArray album = null;
         JToken sceneObj = null;
@@ -530,6 +531,7 @@ public partial class MainClass : MelonMod
     {
         if (gifs is null || gifs.Count == 0)
         {
+            gifsLoading = false;
             yield break;
         }
         Log($"Starting coroutine to load all gifs");
