@@ -6,7 +6,7 @@ This mod allows you to customize your play area with framed pictures.
 
 ![Gear market button](img/GearMarketButton.png)
 
-Simply drop the images you want into `UserData/RumblePhotoAlbum/pictures`, and press the "Spawn picture" button on the Gear Market. The picture will be prompty delivered to you via the Mail Tube! You can then grab and reposition the picture as you like, and even resize it by grabbing it with two hands.
+Simply drop the images you want into `UserData/RumblePhotoAlbum/pictures`, and press the "Spawn picture" button on the Gear Market. The picture will be prompty delivered to you via the Mail Tube! You can then grab and reposition the picture as you like, and even resize it by grabbing it with two hands. You can also hold two pictures at once, one in each hand!
 
 ![Spawned picture](img/SpawnedPicture.png)
 
@@ -62,6 +62,10 @@ Many aspects of the frames can be customized via ModUI or by editing the config.
 - **Transparency:** transparency is disabled by default because it's not very optimized, and makes a small lag spike when creating the picture. You can enable it globally via ModUI, but to enable it for any specific picture, add the field **"alpha": true** to the json configuration of the picture.
 
 - **Action buttons:** you can disable the buttons that appear on the picture. You won't be able to delete/stash/hide it anymore, but it can be useful for filmmaking for example!
+
+- **Picture spawning frequency:** change the delay between loading two consecutive pictures. Making the number higher will make all the pictures in the scene appear slower, one after the other, and will have less performance impact on loading the scene. Useful if you have a hundred pictures to spawn.
+
+- **GIF decoding frequency:** change the delay between reading two consecutive frames in a GIF. Decoding frames from the GIF file can be a costly operation, and making this delay higher will improve performance, at the cost of a longer time needed to finish loading the GIF. This only impact the initial loading in the scene.
 
 - **GIF speed:** change the speed of GIF playback. Whether to make it faster or slower, this will affect all gifs at once. But there is a hardcoded limit of 0.001s between two frames.
 

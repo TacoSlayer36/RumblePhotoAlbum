@@ -1,3 +1,8 @@
+# Version 1.2.1
+- Made it possible to hold two pictures at once
+- Fixed park spawn button rotation
+- Added options for spawning and GIF decoding frequency
+
 # Version 1.2.0
 - Added animated GIF support
 
