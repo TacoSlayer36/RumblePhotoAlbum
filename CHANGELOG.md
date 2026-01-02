@@ -1,3 +1,6 @@
+# Version 1.2.3
+- Fixed bug with GIF not playing sometimes
+
 # Version 1.2.2
 - Added FlatLand support
 - Fixed a bug introduced in v1.2.1 where the mod would crash after deleting/stashing a picture
