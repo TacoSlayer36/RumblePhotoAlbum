@@ -208,7 +208,13 @@ public partial class MainClass : MelonMod
             pictureData.jsonConfig.Remove();
         }
         GameObject.Destroy(pictureData.obj);
-        currentlyModified = null;
+        for (int i = 0; i < 2; i++)
+        {
+            if (currentlyModified[i] == pictureData)
+            {
+                currentlyModified[i] = null;
+            }
+        }
         stashJson.Add(pictureData.path);
         PicturesList.Remove(pictureData);
         File.WriteAllText(fullPath, root.ToString(Formatting.Indented));
@@ -248,7 +254,13 @@ public partial class MainClass : MelonMod
             File.WriteAllText(fullPath, root.ToString(Formatting.Indented));
         }
         GameObject.Destroy(pictureData.obj);
-        currentlyModified = null;
+        for (int i = 0; i < 2; i++)
+        {
+            if (currentlyModified[i] == pictureData)
+            {
+                currentlyModified[i] = null;
+            }
+        }
         PicturesList.Remove(pictureData);
         if (File.Exists(pictureData.path) || keepFile)
         {
