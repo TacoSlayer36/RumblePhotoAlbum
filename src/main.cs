@@ -5,13 +5,14 @@ using MelonLoader;
 using Newtonsoft.Json.Linq;
 using RumbleModdingAPI;
 using UnityEngine;
+using Il2CppRUMBLE.Interactions.InteractionBase;
 
 namespace RumblePhotoAlbum;
 
 public static class BuildInfo
 {
     public const string ModName = "RumblePhotoAlbum";
-    public const string ModVersion = "1.2.1";
+    public const string ModVersion = "1.2.2";
     public const string Description = "Decorate your environment with framed pictures";
     public const string Author = "Kalamart";
     public const string Company = "";
@@ -51,6 +52,7 @@ public partial class MainClass : MelonMod
     protected static bool buttonsVisibility = true; // Whether the buttons are visible on top of the held picture
     protected static GameObject photoAlbum = null; // Parent object for all framed pictures
     protected static string currentScene = "";
+    private static bool flatlandFound = false;
 
     private static List<PictureData> PicturesList = null;
 
@@ -91,6 +93,21 @@ public partial class MainClass : MelonMod
     {
         EnsureUserDataFolders();
         Calls.onMapInitialized += OnMapInitialized;
+        Calls.onMyModsGathered += CheckMods;
+    }
+
+    /**
+    * <summary>
+    * Check which mods the user has installed (for inter-mod compatibility).
+    * </summary>
+    */
+    private void CheckMods()
+    {
+        flatlandFound = Calls.Mods.findOwnMod("FlatLand", "1.0.0", false);
+        if (flatlandFound)
+        {
+            Log("FlatLand mod detected");
+        }
     }
 
     /**
@@ -117,6 +134,44 @@ public partial class MainClass : MelonMod
             InitModUI();
             return;
         }
+        else if (sceneName == "Gym"  && flatlandFound)
+        {
+            MelonCoroutines.Start(ListenForFlatLandButton());
+        }
+    }
+
+    /**
+    * <summary>
+    * Waits for all objects to be initialized, and starts listener for the FlatLand button.
+    * </summary>
+    */
+    private static IEnumerator<WaitForSeconds> ListenForFlatLandButton()
+    {
+        yield return new WaitForSeconds(1);
+        GameObject.Find("FlatLand/FlatLandButton/Button").
+            GetComponent<InteractionButton>().
+            onPressed.
+            AddListener(new System.Action(() =>
+        {
+            MelonCoroutines.Start(OnFlatLandEntered());
+        }));
+        yield break;
+    }
+
+    /**
+    * <summary>
+    * Called when the FlatLand button is pressed.
+    * Waits for a second to give time for FlatLand to load, then loads the album.
+    * </summary>
+    */
+    private static IEnumerator<WaitForSeconds> OnFlatLandEntered()
+    {
+        Log($"Loading into FlatLand");
+        yield return new WaitForSeconds(1);
+        currentScene = "FlatLand";
+        initializeInteractionObjects();
+        MelonCoroutines.Start(LoadAlbum(currentScene));
+        yield break;
     }
 
     /**

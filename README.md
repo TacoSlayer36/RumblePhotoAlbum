@@ -29,6 +29,11 @@ The park also features a copy of the Mail Tube and the "Spawn picture" button.
 
 For multiplayer maps, there can't be extra stuff on the arena, so you'll have to experiment by manually editing the json file... Or use the Rock Cam printing option!
 
+## FlatLand support
+If you have UlvakSkillz's [FlatLand](https://thunderstore.io/c/rumble/p/UlvakSkillz/FlatLand/) mod, you can use it to spawn pictures there as well. Similarly to the park, it features a copy of the Mail Tube and the "Spawn picture" button.
+
+![FlatLand mail tube and button](img/FlatLandButton.png)
+
 ## Rock Cam integration
 You can print photos from your Rock Cam!
 

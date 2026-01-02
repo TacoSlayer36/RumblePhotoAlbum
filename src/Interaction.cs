@@ -64,6 +64,10 @@ public partial class MainClass : MelonMod
         {
             initializeParkObjects();
         }
+        else if (currentScene == "FlatLand")
+        {
+            initializeFlatLandObjects();
+        }
         initializeRockCam();
     }
 
@@ -316,6 +320,28 @@ public partial class MainClass : MelonMod
         GameObject spawnButton = NewGearMarketButton("spawnButton", "Spawn picture", action);
         spawnButton.transform.position = new Vector3(-13.19f, -4.68f, 5.42f);
         spawnButton.transform.rotation = Quaternion.Euler(new Vector3(-90, 30, 0));
+
+        initializeMailTubeObjects();
+    }
+
+    /**
+    * <summary>
+    * Initializes the objects that are specific to the FlatLand scene.
+    * </summary>
+    */
+    private static void initializeFlatLandObjects()
+    {
+        //Copy the mail tube object that comes from the gym
+        mailTube = NewMailTube().GetComponent<MailTube>();
+        mailTube.gameObject.name = "mailTube";
+        mailTube.transform.position = new Vector3(4.3f, 0f, - 4f);
+        mailTube.transform.rotation = Quaternion.Euler(new Vector3(0, 70, 0));
+
+        // Create a new button on the gear market for spawning pictures
+        System.Action action = () => SpawnPicture();
+        GameObject spawnButton = NewGearMarketButton("spawnButton", "Spawn picture", action);
+        spawnButton.transform.position = new Vector3(3.8f, 1.1f, - 4.12f);
+        spawnButton.transform.rotation = Quaternion.Euler(new Vector3(-90, -92, 0));
 
         initializeMailTubeObjects();
     }

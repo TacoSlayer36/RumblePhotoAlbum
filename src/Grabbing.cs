@@ -5,7 +5,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using HarmonyLib;
 using Il2CppRUMBLE.Players;
-using System.Collections.Generic;
 
 namespace RumblePhotoAlbum;
 
