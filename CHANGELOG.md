@@ -1,3 +1,6 @@
+# Version 1.2.4
+- Fixed action button visibility option not working
+
 # Version 1.2.3
 - Fixed bug with GIF not playing sometimes
 

@@ -72,7 +72,7 @@ public partial class MainClass : MelonMod
                         // removing action buttons when holding two different pictures
                         actionButtons.SetActive(false);
                     }
-                    else
+                    else if (buttonsVisibility)
                     {
                         actionButtons.SetActive(true);
                     }

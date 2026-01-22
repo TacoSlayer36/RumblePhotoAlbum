@@ -12,7 +12,7 @@ namespace RumblePhotoAlbum;
 public static class BuildInfo
 {
     public const string ModName = "RumblePhotoAlbum";
-    public const string ModVersion = "1.2.3";
+    public const string ModVersion = "1.2.4";
     public const string Description = "Decorate your environment with framed pictures";
     public const string Author = "Kalamart";
     public const string Company = "";
