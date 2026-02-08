@@ -151,7 +151,7 @@ public partial class MainClass : MelonMod
             sceneObj["album"] = cleanedAlbum;
 
             // Save back the modified config
-            File.WriteAllText(fullPath, root.ToString(Formatting.Indented));
+            File.WriteAllText(fullPath, JsonConvert.SerializeObject(root, Formatting.Indented));
 
             stashJson = (JArray)root[currentScene]["stash"];
             albumJson = (JArray)root[currentScene]["album"];
@@ -793,6 +793,6 @@ public partial class MainClass : MelonMod
         }
 
         // Save full file back to disk
-        File.WriteAllText(fullPath, root.ToString(Formatting.Indented));
+        File.WriteAllText(fullPath, JsonConvert.SerializeObject(root, Formatting.Indented));
     }
 }

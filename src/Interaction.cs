@@ -221,7 +221,7 @@ public partial class MainClass : MelonMod
         }
         stashJson.Add(pictureData.path);
         PicturesList.Remove(pictureData);
-        File.WriteAllText(fullPath, root.ToString(Formatting.Indented));
+        File.WriteAllText(fullPath, JsonConvert.SerializeObject(root, Formatting.Indented));
         Log($"Stashed a picture");
     }
 
@@ -255,7 +255,7 @@ public partial class MainClass : MelonMod
         if (pictureData.jsonConfig is not null)
         {
             pictureData.jsonConfig.Remove();
-            File.WriteAllText(fullPath, root.ToString(Formatting.Indented));
+            File.WriteAllText(fullPath, JsonConvert.SerializeObject(root, Formatting.Indented));
         }
         GameObject.Destroy(pictureData.obj);
         for (int i = 0; i < 2; i++)
